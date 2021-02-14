@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: "50mb" }));
 
 //Routes
+app.use(require("./routes/leaderboard"));
 
 app.listen(PORT, (req, res) => {
   console.log(`Listening @ ${PORT}`);
