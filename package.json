@@ -7,13 +7,15 @@
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mongoose": "^5.11.15"
+    "mongoose": "^5.11.15",
+    "node-schedule": "^2.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
   },
   "scripts": {
-    "dev": "nodemon ./app.js"
+    "dev": "nodemon ./app.js",
+    "cron-job": "node ./jobs/index.js"
   },
   "repository": {
     "type": "git",
