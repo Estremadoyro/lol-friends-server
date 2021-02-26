@@ -1,14 +1,24 @@
 const mongoose = require('mongoose');
 
 const RankChallengerSchema = new mongoose.Schema({
+  summonerId: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   rank: {
     type: Number,
     required: true,
   },
+  rankOffset: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
   queueRank: {
     type: String,
-    enum: ['Challenger', 'Grandmaster', 'Master'],
-    default: 'Challenger',
+    enum: ['CHALLENGER', 'GRANDMASTER', 'MASTER'],
+    default: 'CHALLENGER',
     required: true,
   },
   summonerName: {
@@ -35,7 +45,7 @@ const RankChallengerSchema = new mongoose.Schema({
   },
   rankUpdate: {
     type: String,
-    enum: ['up', 'down', 'same'],
+    enum: ['up', 'down', 'same', 'new'],
     default: 'same',
     required: true,
   }
