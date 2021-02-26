@@ -6,4 +6,7 @@ const API = {
   RIOT_API_SUMMONER_RANK_INFO: process.env.RIOT_API_SUMMONER_RANK_INFO,
 };
 
-module.exports = { API };
+const MONGO_CREDENTIALS = {
+  DB_URI: process.env.DB_URI,
+}
+module.exports = { API, MONGO_CREDENTIALS };
