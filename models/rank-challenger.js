@@ -54,6 +54,10 @@ const RankChallengerSchema = new mongoose.Schema({
     default: "same",
     required: true,
   },
+  updateTime: {
+    type: Number,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model(

@@ -61,7 +61,8 @@ const updateLeaderBoard = async (region, queue, rank, division) => {
  * rankedPlayer - DB's player
  */
 const comparePlayers = async (res, region, model) => {
-  await deletePlayers(res.data, model);
+  const updateTime = String(generateTimestamp());
+
   //Player from RIOT's API
   res.data.forEach(async (player, index) => {
     const rank = index + 1;
@@ -69,28 +70,30 @@ const comparePlayers = async (res, region, model) => {
       summonerId: player.summonerId,
     });
 
-    if (rankedPlayer) updatePlayer(rankedPlayer, rank, player, model);
-    else createPlayer(player, rank, region, model);
+    if (rankedPlayer)
+      updatePlayer(rankedPlayer, rank, player, model, updateTime);
+    else createPlayer(player, rank, region, model, updateTime);
   });
+
+  await deletePlayers(updateTime, model);
 };
+
+const generateTimestamp = () => {
+  return Date.now();
+};
+
 //Delete when player descent from API's leaderboard
-const deletePlayers = async (apiPlayers, model) => {
-  try {
-    const dbPlayers = await model.find();
-    for (var i = 0; i < dbPlayers.length; i++) {
-      for (var j = 0; j < apiPlayers.length; j++) {
-        if (dbPlayers[i].summonerId == apiPlayers[j].summonerId) {
-          return;
-        }
-      }
-      console.log(`Player to delete: ${dbPlayers[i].summonerName}`);
-      await model.deleteOne({ summonerId: dbPlayers[i].summonerId });
-    }
-  } catch (err) {
-    console.log(err);
-  }
+const deletePlayers = async (updateTime, model) => {
+  await model
+    .deleteMany({
+      updateTime: { $ne: updateTime },
+    })
+    .then(
+      (res) => console.log(`Deleted: ${res.length}`),
+      (err) => console.log(err)
+    );
 };
-const updatePlayer = async (rankedPlayer, rank, player, model) => {
+const updatePlayer = async (rankedPlayer, rank, player, model, updateTime) => {
   console.log("Player found", rankedPlayer);
   const rankUpdate = computeRankStatus(rankedPlayer, player);
   const rankOffset = rank - rankedPlayer.rank;
@@ -104,6 +107,7 @@ const updatePlayer = async (rankedPlayer, rank, player, model) => {
         leaguePoints: player.leaguePoints,
         wins: player.wins,
         losses: player.losses,
+        updateTime: updateTime,
       }
       // { runValidators: true },
       // { upsert: false }
@@ -113,7 +117,7 @@ const updatePlayer = async (rankedPlayer, rank, player, model) => {
   }
 };
 
-const createPlayer = async (player, rank, region, model) => {
+const createPlayer = async (player, rank, region, model, updateTime) => {
   console.log(`Player: (${player.summonerName}) not found, creating...`);
   const newPlayer = model({
     rank: rank,
@@ -126,6 +130,7 @@ const createPlayer = async (player, rank, region, model) => {
     wins: player.wins,
     losses: player.losses,
     rankUpdate: "new",
+    updateTime: updateTime,
   });
   console.log("Player created", newPlayer);
   const createRankedPlayer = await newPlayer.save();

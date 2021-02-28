@@ -54,6 +54,10 @@ const RankMasterSchema = new mongoose.Schema({
     default: "same",
     required: true,
   },
+  updateTime: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("RANK_LEADERBOARD_MASTER", RankMasterSchema);
