@@ -1,7 +1,7 @@
 const { API } = require("../keys");
 
-const plb = (region, queue, rank, page) => {
-  const parse = `${API.RIOT_API_LEADERBOARD}/leaderboard/${region}/${queue}/${rank}/${page}`;
+const plb = (region, queue, rank, division) => {
+  const parse = `${API.RIOT_API_LEADERBOARD}/leaderboard/${region}/${queue}/${rank}/${division}`;
   return parse;
 };
 

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const RankMasterSchema = new mongoose.Schema({
+const RankGrandmasterSchema = new mongoose.Schema({
   summonerId: {
     type: String,
     unique: true,
@@ -23,7 +23,7 @@ const RankMasterSchema = new mongoose.Schema({
   queueRank: {
     type: String,
     enum: ["CHALLENGER", "GRANDMASTER", "MASTER"],
-    default: "MASTER",
+    default: "GRANDMASTER",
     required: true,
   },
   summonerName: {
@@ -56,4 +56,7 @@ const RankMasterSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("RANK_LEADERBOARD_MASTER", RankMasterSchema);
+module.exports = mongoose.model(
+  "RANK_LEADERBOARD_GRANDMASTER",
+  RankGrandmasterSchema
+);

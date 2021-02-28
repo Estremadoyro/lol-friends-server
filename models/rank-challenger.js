@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const RankChallengerSchema = new mongoose.Schema({
   summonerId: {
@@ -6,8 +6,13 @@ const RankChallengerSchema = new mongoose.Schema({
     unique: true,
     required: true,
   },
+  region: {
+    type: String,
+    require: true,
+  },
   rank: {
     type: Number,
+    unique: true,
     required: true,
   },
   rankOffset: {
@@ -17,8 +22,8 @@ const RankChallengerSchema = new mongoose.Schema({
   },
   queueRank: {
     type: String,
-    enum: ['CHALLENGER', 'GRANDMASTER', 'MASTER'],
-    default: 'CHALLENGER',
+    enum: ["CHALLENGER", "GRANDMASTER", "MASTER"],
+    default: "CHALLENGER",
     required: true,
   },
   summonerName: {
@@ -45,10 +50,13 @@ const RankChallengerSchema = new mongoose.Schema({
   },
   rankUpdate: {
     type: String,
-    enum: ['up', 'down', 'same', 'new'],
-    default: 'same',
+    enum: ["up", "down", "same", "new"],
+    default: "same",
     required: true,
-  }
+  },
 });
 
-module.exports = mongoose.model('RANK_LEADERBOARD_CHALLENGER', RankChallengerSchema);
+module.exports = mongoose.model(
+  "RANK_LEADERBOARD_CHALLENGER",
+  RankChallengerSchema
+);

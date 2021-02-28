@@ -1,4 +1,4 @@
-export const selectRegion = {
+const selectRegion = {
   regions: [
     {
       name: "LAS",
@@ -39,7 +39,7 @@ export const selectRegion = {
   ],
 };
 
-export const selectRank = {
+const selectRank = {
   ranks: [
     {
       name: "CHALLENGER",
@@ -55,3 +55,5 @@ export const selectRank = {
     },
   ],
 };
+
+module.exports = { selectRegion, selectRank };
