@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const axios = require("axios").default;
 const { plb } = require("../functions/parseAPI");
 const { selectRegion } = require("../misc/Variables");
-const { pickModel } = require("../functions/dbQueries");
+const { pickModel, findPlayer } = require("../functions/dbQueries");
 
 // require("dotenv").config();
 /**
@@ -47,7 +47,7 @@ const updateLeaderBoard = async (region, queue, rank, division) => {
   try {
     const res = await axios.get(api);
     const model = pickModel(rank);
-    await comparePlayers(res, region, model);
+    await comparePlayers(res, region, model, rank);
   } catch (err) {
     console.log(err);
   }
@@ -60,19 +60,26 @@ const updateLeaderBoard = async (region, queue, rank, division) => {
  * player - RIOT's API player
  * rankedPlayer - DB's player
  */
-const comparePlayers = async (res, region, model) => {
+const comparePlayers = async (res, region, model, leaderboardRank) => {
   const updateTime = String(generateTimestamp());
 
   //Player from RIOT's API
   res.data.forEach(async (player, index) => {
     const rank = index + 1;
-    const rankedPlayer = await model.findOne({
-      summonerId: player.summonerId,
-    });
-
-    if (rankedPlayer)
-      updatePlayer(rankedPlayer, rank, player, model, updateTime);
-    else createPlayer(player, rank, region, model, updateTime);
+    // const rankedPlayer = await model.findOne({
+    //   summonerId: player.summonerId,
+    // });
+    try {
+      const rankedPlayer = await findPlayer(leaderboardRank, player.summonerId);
+      if (rankedPlayer) {
+        updatePlayer(rankedPlayer, rank, player, model, updateTime);
+      }
+      if (rankedPlayer == null || rankedPlayer == undefined) {
+        createPlayer(player, rank, region, model, updateTime);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   await deletePlayers(updateTime, model);
@@ -94,11 +101,10 @@ const deletePlayers = async (updateTime, model) => {
     );
 };
 const updatePlayer = async (rankedPlayer, rank, player, model, updateTime) => {
-  console.log("Player found", rankedPlayer);
   const rankUpdate = computeRankStatus(rankedPlayer, player);
   const rankOffset = rank - rankedPlayer.rank;
   try {
-    await model.updateOne(
+    const updatePlayer = await model.updateOne(
       { summonerId: rankedPlayer.summonerId },
       {
         rankUpdate: rankUpdate,
@@ -112,6 +118,7 @@ const updatePlayer = async (rankedPlayer, rank, player, model, updateTime) => {
       // { runValidators: true },
       // { upsert: false }
     );
+    console.log(`Player updated: ${updatePlayer.summonerName}`);
   } catch (err) {
     console.log(err);
   }

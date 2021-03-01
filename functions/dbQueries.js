@@ -33,4 +33,18 @@ const leaderboardQueries = async (leaderboard, region, queue, rank) => {
   return players;
 };
 
-module.exports = { leaderboardQueries, pickModel };
+const findPlayer = async (rank, summonerId) => {
+  const Model = pickModel(rank);
+  try {
+    const player = await Model.findOne({ summonerId: summonerId });
+    if (player) {
+      console.log(player);
+    } else {
+      console.log(`Player ${summonerId} doesn't exist`);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+module.exports = { leaderboardQueries, pickModel, findPlayer };
