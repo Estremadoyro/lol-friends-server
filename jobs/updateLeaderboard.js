@@ -73,8 +73,7 @@ const comparePlayers = async (res, region, model, leaderboardRank) => {
       const rankedPlayer = await findPlayer(leaderboardRank, player.summonerId);
       if (rankedPlayer) {
         updatePlayer(rankedPlayer, rank, player, model, updateTime);
-      }
-      if (rankedPlayer == null || rankedPlayer == undefined) {
+      } else {
         createPlayer(player, rank, region, model, updateTime);
       }
     } catch (err) {
