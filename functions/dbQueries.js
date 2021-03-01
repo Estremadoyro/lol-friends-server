@@ -38,7 +38,7 @@ const findPlayer = async (rank, summonerId) => {
   try {
     const player = await Model.findOne({ summonerId: summonerId });
     if (player) {
-      console.log(player);
+      return player;
     } else {
       console.log(`Player ${summonerId} doesn't exist`);
     }
@@ -46,5 +46,11 @@ const findPlayer = async (rank, summonerId) => {
     console.log(err);
   }
 };
+
+// const db = require('../db');
+
+// db();
+// const player = findPlayer('MASTER', 'PI8DbpZ4mxQiT_on4FefzVTgwds5tIbX9nT_GQrLe8h9mg');
+// console.log(player);
 
 module.exports = { leaderboardQueries, pickModel, findPlayer };

@@ -12,7 +12,6 @@ const RankMasterSchema = new mongoose.Schema({
   },
   rank: {
     type: Number,
-    unique: true,
     required: true,
   },
   rankOffset: {

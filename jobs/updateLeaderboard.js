@@ -5,6 +5,7 @@ const axios = require("axios").default;
 const { plb } = require("../functions/parseAPI");
 const { selectRegion } = require("../misc/Variables");
 const { pickModel, findPlayer } = require("../functions/dbQueries");
+const RankMaster = require('../models/rank-master');
 
 // require("dotenv").config();
 /**
@@ -25,7 +26,10 @@ db_connected();
 
 const handleUpdates = async (regions, queue, rank, division) => {
   // await updateLeaderBoard(regions[0].value, queue, rank, division);
-  await updateLeaderBoard(regions[1].value, queue, rank, division);
+  const updatedTime = await updateLeaderBoard(regions[1].value, queue, rank, division);
+  console.log('DELETING ALL PLAYERS GAAA');
+  console.log(updatedTime, 'updated time');
+  await deletePlayers(updatedTime, RankMaster);
   // await updateLeaderBoard(regions[2].value, queue, rank, division);
   // await updateLeaderBoard(regions[3].value, queue, rank, division);
   // await updateLeaderBoard(regions[4].value, queue, rank, division);
@@ -47,12 +51,12 @@ const updateLeaderBoard = async (region, queue, rank, division) => {
   try {
     const res = await axios.get(api);
     const model = pickModel(rank);
-    await comparePlayers(res, region, model, rank);
+    const updatedTime = await comparePlayers(res, region, model, rank)
+    return updatedTime;
   } catch (err) {
     console.log(err);
   }
   console.log(`Finished: ${region}`);
-  return;
   // cron.schedule("*/1 * * * *", updateLeaderBoard);
 };
 
@@ -64,24 +68,28 @@ const comparePlayers = async (res, region, model, leaderboardRank) => {
   const updateTime = String(generateTimestamp());
 
   //Player from RIOT's API
-  res.data.forEach(async (player, index) => {
-    const rank = index + 1;
+  await res.data.forEach(async (player, index) => {
     // const rankedPlayer = await model.findOne({
     //   summonerId: player.summonerId,
     // });
     try {
-      const rankedPlayer = await findPlayer(leaderboardRank, player.summonerId);
+      const rank = index + 1;
+      const rankedPlayer = await findPlayer(rank, player.summonerId);
+      // console.log(rankedPlayer);
       if (rankedPlayer) {
-        updatePlayer(rankedPlayer, rank, player, model, updateTime);
+        console.log('Update player');
+        await updatePlayer(rankedPlayer, rank, player, model, updateTime);
       } else {
-        createPlayer(player, rank, region, model, updateTime);
+        console.log('Create new Player');
+        await createPlayer(player, rank, region, model, updateTime);
       }
     } catch (err) {
       console.log(err);
     }
   });
 
-  await deletePlayers(updateTime, model);
+  return updateTime;
+
 };
 
 const generateTimestamp = () => {
@@ -89,21 +97,29 @@ const generateTimestamp = () => {
 };
 
 //Delete when player descent from API's leaderboard
-const deletePlayers = async (updateTime, model) => {
-  await model
-    .deleteMany({
-      updateTime: { $ne: updateTime },
-    })
-    .then(
-      (res) => console.log(`Deleted: ${res.length}`),
-      (err) => console.log(err)
-    );
+const deletePlayers = async (updatedTime, model) => {
+  console.log(updatedTime, 'Update Time')
+  try {
+    const deletedPlayers = await model.deleteMany({
+      updateTime: { $lt: updatedTime }
+    });
+    console.log(deletedPlayers);
+  } catch (err) {
+    console.error(err);
+  }
 };
+
+/**
+ * @param {Player} rankedPlayer
+ * @param {number} rank - Puesto del jugador
+ * @param {Player} player - Player del API
+*/
 const updatePlayer = async (rankedPlayer, rank, player, model, updateTime) => {
   const rankUpdate = computeRankStatus(rankedPlayer, player);
   const rankOffset = rank - rankedPlayer.rank;
   try {
-    const updatePlayer = await model.updateOne(
+    console.log('Rank player found... updating', rankedPlayer.summonerName);
+    const updatedPlayer = await model.findOneAndUpdate(
       { summonerId: rankedPlayer.summonerId },
       {
         rankUpdate: rankUpdate,
@@ -113,11 +129,12 @@ const updatePlayer = async (rankedPlayer, rank, player, model, updateTime) => {
         wins: player.wins,
         losses: player.losses,
         updateTime: updateTime,
-      }
+      },
+      { new: true }
       // { runValidators: true },
       // { upsert: false }
     );
-    console.log(`Player updated: ${updatePlayer.summonerName}`);
+    console.log('updated Player', updatedPlayer);
   } catch (err) {
     console.log(err);
   }
