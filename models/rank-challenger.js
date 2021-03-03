@@ -12,7 +12,6 @@ const RankChallengerSchema = new mongoose.Schema({
   },
   rank: {
     type: Number,
-    unique: true,
     required: true,
   },
   rankOffset: {
@@ -20,7 +19,7 @@ const RankChallengerSchema = new mongoose.Schema({
     default: 0,
     required: true,
   },
-  queueRank: {
+  league: {
     type: String,
     enum: ["CHALLENGER", "GRANDMASTER", "MASTER"],
     default: "CHALLENGER",

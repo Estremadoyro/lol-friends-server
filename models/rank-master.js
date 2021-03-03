@@ -19,7 +19,7 @@ const RankMasterSchema = new mongoose.Schema({
     default: 0,
     required: true,
   },
-  queueRank: {
+  league: {
     type: String,
     enum: ["CHALLENGER", "GRANDMASTER", "MASTER"],
     default: "MASTER",
