@@ -119,7 +119,6 @@ const updateLeaderboardPlayer = async (
       },
       { runValidators: true }
     );
-    console.log(`Player ${response.summonerName} updated...`);
     return response;
   } catch (err) {
     console.log(err);

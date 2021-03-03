@@ -24,7 +24,7 @@ const updateLeaderboard = async (leaderboard) => {
   const updatedTime = Date.now().toString();
   const playersAPI = await getPlayersAPI(leaderboard);
   await comparePlayers(leaderboard, playersAPI, updatedTime);
-  await removeDemotedPlayers(leaderboard, updatedTime);
+  // await removeDemotedPlayers(leaderboard, updatedTime);
 };
 
 const getPlayersAPI = async (lb) => {
