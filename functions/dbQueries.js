@@ -40,6 +40,7 @@ const getLeaderboardPlayers = async (league, region, queue) => {
         league: league,
       })
       .sort({ rank: 1 });
+    console.log(players);
     return players;
   } catch (err) {
     console.log(err);
@@ -104,6 +105,7 @@ const createPlayer = async (playerAPI, league, region, rank, updatedTime) => {
  */
 const updateLeaderboardPlayer = async (
   playerDB,
+  playerAPI,
   rankUpdate,
   rank,
   rankOffset,
@@ -113,6 +115,9 @@ const updateLeaderboardPlayer = async (
     const response = await playerDB.updateOne(
       {
         rankUpdate: rankUpdate,
+        wins: playerAPI.wins,
+        losses: playerAPI.losses,
+        leaguePoints: playerAPI.leaguePoints,
         rank: rank,
         rankOffset: rankOffset,
         updateTime: updatedTime,
@@ -132,10 +137,15 @@ const updateLeaderboardPlayer = async (
  * @returns new Player
  */
 const deletePlayers = async (league, region, time) => {
+  console.log(`Process delete time ${time}`);
   const model = pickModel(league);
   try {
+    const findPlayers = await model.find();
+    findPlayers.forEach((player) => {
+      console.log(`DB player time ${player.updateTime}`);
+    });
     const deletion = await model.deleteMany({
-      updateTime: { $lt: time },
+      updateTime: { $ne: time },
       region: region,
     });
     return deletion;

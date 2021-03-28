@@ -5,10 +5,11 @@
  * @param {now} - Current leaderboard rank (API)
  * @returns 'up' | 'down' | 'same' | 'new'
  */
-const computeRankStatus = (before, now) => {
-  if (!before.rank) return "same";
-  if (now.rank > before.rank) return "up";
-  else if (now.rank < before.rank) return "down";
+const computeRankStatus = (playerDB, rankAPI) => {
+  console.log(`DB rank: ${playerDB.rank}, API rank: ${rankAPI}`);
+  if (!playerDB.rank) return "same";
+  if (rankAPI > playerDB.rank) return "down";
+  else if (rankAPI < playerDB.rank) return "up";
   else return "same";
 };
 

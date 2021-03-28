@@ -14,17 +14,18 @@ const { computeRankStatus } = require("../functions/misc");
 
 db();
 const leaderboard = {
-  region: "la1",
+  region: "la2",
   queue: "RANKED_SOLO_5x5",
-  league: "CHALLENGER",
+  league: "MASTER",
   division: "I",
 };
 
 const updateLeaderboard = async (leaderboard) => {
-  const updatedTime = Date.now().toString();
+  // const updatedTime = Date.now().toString();
   const playersAPI = await getPlayersAPI(leaderboard);
-  await comparePlayers(leaderboard, playersAPI, updatedTime);
-  // await removeDemotedPlayers(leaderboard, updatedTime);
+  const updateTime = await comparePlayers(leaderboard, playersAPI);
+  const rm = await removeDemotedPlayers(leaderboard, updateTime);
+  return rm;
 };
 
 const getPlayersAPI = async (lb) => {
@@ -38,22 +39,18 @@ const getPlayersAPI = async (lb) => {
   }
 };
 
-const comparePlayers = async (lb, playersAPI, time) => {
-  playersAPI.forEach(async (playerAPI, index) => {
+const comparePlayers = async (lb, playersAPI) => {
+  const time = Date.now().toString();
+  await playersAPI.forEach(async (playerAPI, index) => {
     const newRank = index + 1;
     try {
       const playerDB = await findPlayer(lb.league, playerAPI.summonerId);
-      const compare = await verifyPlayer(
-        playerDB,
-        playerAPI,
-        lb,
-        time,
-        newRank
-      );
+      await verifyPlayer(playerDB, playerAPI, lb, time, newRank);
     } catch (err) {
       console.log(err);
     }
   });
+  return time;
 };
 
 const verifyPlayer = async (playerDB, playerAPI, lb, time, newRank) => {
@@ -69,17 +66,22 @@ const verifyPlayer = async (playerDB, playerAPI, lb, time, newRank) => {
 };
 
 const updatePlayerDB = async (playerDB, playerAPI, time, newRank) => {
-  const rankUpdate = computeRankStatus(playerDB, playerAPI);
-  const rankOffset = newRank - playerDB.rank;
+  const rankUpdate = computeRankStatus(playerDB, newRank);
+  const rankOffset = playerDB.rank - newRank;
+  console.log(`Player ${playerDB.summonerName} status: ${rankUpdate}`);
+  console.log(`update: ${rankOffset}`);
+  console.log(`new rank ${newRank}`);
   try {
     const update = await updateLeaderboardPlayer(
       playerDB,
+      playerAPI,
       rankUpdate,
       newRank,
       rankOffset,
       time
     );
-    if (update) console.log(`Player ${playerDB.summonerName} updated ...`);
+    if (update)
+      console.log(`Player ${playerDB.summonerName} updated @ ${time}`);
   } catch (err) {
     console.log(err);
   }
@@ -105,6 +107,7 @@ const removeDemotedPlayers = async (lb, time) => {
   try {
     const deletion = await deletePlayers(lb.league, lb.region, time);
     console.log(`Deleted ${deletion.n} from ${lb.region}`);
+    // console.log(`Delete time ${time}`);
     return deletion;
   } catch (err) {
     console.log(err);

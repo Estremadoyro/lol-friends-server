@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 const { pickModel } = require("../functions/dbQueries");
-const RankMaster = require('../models/rank-master');
+const RankMaster = require("../models/rank-master");
 const db = require("../db");
 //Create new player in DB
 db();
-const createPlayer = async (rank) => {
-  const Model = pickModel(rank);
+const createPlayer = async (league) => {
+  const Model = pickModel(league);
   const player = new Model({
     rankOffset: 0,
-    queueRank: "MASTER",
+    queueRank: league,
     rankUpdate: "new",
     rank: 206,
     region: "la1",
@@ -33,7 +33,7 @@ const createPlayer = async (rank) => {
 const deletePlayers = async (updatedTime, model) => {
   try {
     const playersDeleted = await model.deleteMany({
-      updateTime: { $ne: updatedTime}
+      updateTime: { $ne: updatedTime },
     });
     console.log(playersDeleted);
   } catch (err) {
@@ -53,5 +53,5 @@ const findPlayer = async (rank, summonerId) => {
 };
 
 // findPlayer("MASTER","ltLtO73CiNP9hKmtv4Gbpl8S-GNLK56BqBe-3f8zJkFFxQ")
-createPlayer('MASTER');
+createPlayer("CHALLENGER");
 // deletePlayers('1614577571054', RankMaster);
