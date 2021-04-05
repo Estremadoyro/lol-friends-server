@@ -2,6 +2,7 @@ const RankChallenger = require("../models/rank-challenger");
 const RankGrandMaster = require("../models/rank-grandmaster");
 const RankMaster = require("../models/rank-master");
 
+const Summoner = require("../models/summoner");
 /**
  * Returns a ranked league model
  * @param {league} - Ranked system league
@@ -153,8 +154,47 @@ const deletePlayers = async (league, region, time) => {
     console.log(err);
   }
 };
+
+const getPlayerDB = async (region, summoner) => {
+  try {
+    const player = await Summoner.findOne({
+      name: new RegExp(`\\b${summoner}\\b`, "i"),
+      region: region,
+    });
+    if (player) {
+      console.log(`Player ${summoner} (${region}) found in DB`);
+      return player;
+    } else {
+      console.log(`Player ${summoner} (${region}) NOT found in DB`);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const createPlayerDB = async (p) => {
+  try {
+    const newPlayer = new Summoner({
+      id: p.id,
+      accountId: p.accountId,
+      puuid: p.puuid,
+      region: p.region,
+      name: p.name,
+      profileIconId: p.profileIconId,
+      profileIconUrl: `https://cdn.communitydragon.org/11.7.9/profile-icon/${p.profileIconId}`,
+      summonerLevel: p.summonerLevel,
+    });
+    const resp = await newPlayer.save();
+    if (resp) console.log(`Player ${resp.name} (${resp.region}) created in DB`);
+    return resp;
+  } catch (err) {
+    console.log(err);
+  }
+};
 module.exports = {
   getLeaderboardPlayers,
+  getPlayerDB,
+  createPlayerDB,
   pickModel,
   findPlayer,
   updateLeaderboardPlayer,

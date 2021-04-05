@@ -14,7 +14,7 @@ const { computeRankStatus } = require("../functions/misc");
 
 db();
 const leaderboard = {
-  region: "la1",
+  region: "la2",
   queue: "RANKED_SOLO_5x5",
   league: "CHALLENGER",
   division: "I",

@@ -5,4 +5,9 @@ const plb = (region, queue, rank, division) => {
   return parse;
 };
 
-module.exports = { plb };
+const pSummoner = (region, summoner) => {
+  const parse = `${API.RIOT_API_SUMMONER_BASIC_INFO}/summoner/${region}/${summoner}`;
+  return parse;
+};
+
+module.exports = { plb, pSummoner };

@@ -7,11 +7,12 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: "50mb" }));
 
 // Db Connection
-const db = require('./db');
+const db = require("./db");
 db();
 
 //Routes
-app.use(require("./routes/leaderboard"));
+app.use("/api/v1.1/leaderboard", require("./routes/api/leaderboard"));
+app.use("/api/v1.1/summoner", require("./routes/api/summoner"));
 
 app.listen(PORT, (_req, _res) => {
   console.log(`Listening @ ${PORT}`);
