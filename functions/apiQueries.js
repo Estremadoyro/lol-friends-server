@@ -7,10 +7,10 @@ const getPlayerAPI = async (region, summoner) => {
     const { data } = await axios.get(parameters);
     if (data) {
       console.log(`Player ${summoner} (${region}) found in API`);
+      return data;
     } else {
       console.log(`Player ${summoner} (${region}) NOT found in API`);
     }
-    return data;
   } catch (err) {
     console.log(err);
   }
