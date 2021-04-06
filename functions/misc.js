@@ -1,3 +1,4 @@
+const { selectRegion } = require("../misc/Variables");
 /**
  * Update player's leaderboard ranking
  *
@@ -13,4 +14,6 @@ const computeRankStatus = (playerDB, rankAPI) => {
   else return "same";
 };
 
-module.exports = { computeRankStatus };
+const regionsValue = selectRegion.regions.map(({ value }) => value);
+
+module.exports = { computeRankStatus, regionsValue };
