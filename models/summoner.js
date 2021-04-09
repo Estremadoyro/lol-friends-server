@@ -28,6 +28,7 @@ const SummonerSchema = new mongoose.Schema({
   },
   profileIconId: {
     type: "Number",
+    default: 29,
   },
   profileIconUrl: {
     type: "String",

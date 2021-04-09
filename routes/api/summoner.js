@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
-const { param, check, validationResult } = require("express-validator");
 
 const { getPlayerAPI } = require("../../functions/apiQueries");
 const { getPlayerDB, createPlayerDB } = require("../../functions/dbQueries");
@@ -10,17 +8,13 @@ const { regionsValue } = require("../../functions/misc");
 
 router.post(
   "/:region/:summoner",
-  [
-    param(["region", "Invalid region"]).isIn(regionsValue),
-    param(["summoner", "Invalid summoner name"]).isLength({ min: 3, max: 16 }),
-  ],
   async (req, res) => {
     const { region, summoner } = req.params;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      console.log(errors);
-      res.status(400).json({ errors: errors.array() });
-      return;
+    if (region.length < 3 || region.length > 4 || !(regionsValue.includes(region))) {
+      return res.status(400).json({error: "Invalid region"})
+    }
+    if (summoner.length < 3 || summoner.length > 16) { 
+      return res.status(400).json({error: "Invalid summoner name"})
     }
     try {
       const player = await getPlayerDB(region, summoner);
@@ -45,9 +39,9 @@ router.post(
       console.log("player doesnt exist");
       return res
         .status(404)
-        .json({ errors: [{ msg: "Player doesn't exist :sadowo:" }] });
+        .json({ error: "Player doesn't exist :sadowo:" });
     } catch (err) {
-      res.status(500).json({ errors: [{ msg: "Server error :sadowo:" }] });
+      res.status(500).json({ error: "Server error :sadowo:" });
       console.log(err);
     }
   }
