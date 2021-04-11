@@ -158,7 +158,8 @@ const deletePlayers = async (league, region, time) => {
 const getPlayerDB = async (region, summoner) => {
   try {
     const player = await Summoner.findOne({
-      name: new RegExp(`\\b${summoner}\\b`, "i"),
+      // name: new RegExp(`\\b${summoner}\\b`, "i"),
+      nameLower: summoner.toLowerCase().trim().replace(/\s+/g, ""),
       region: region,
     });
     if (player) {
@@ -180,6 +181,7 @@ const createPlayerDB = async (p) => {
       puuid: p.puuid,
       region: p.region,
       name: p.name,
+      nameLower: p.name.toLowerCase().replace(/\s+/g, ""),
       profileIconId: p.profileIconId,
       profileIconUrl: `https://cdn.communitydragon.org/11.7.9/profile-icon/${p.profileIconId}`,
       summonerLevel: p.summonerLevel,

@@ -26,6 +26,12 @@ const SummonerSchema = new mongoose.Schema({
     type: "String",
     required: true,
   },
+  nameLower: {
+    minLength: 3,
+    maxLength: 16,
+    type: "String",
+    required: true,
+  },
   profileIconId: {
     type: "Number",
     default: 29,
