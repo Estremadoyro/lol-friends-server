@@ -41,7 +41,7 @@ const getLeaderboardPlayers = async (league, region, queue) => {
         league: league,
       })
       .sort({ rank: 1 });
-    console.log(players);
+    // console.log(players);
     return players;
   } catch (err) {
     console.log(err);
