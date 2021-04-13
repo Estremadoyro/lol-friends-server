@@ -20,7 +20,9 @@ router.get("/:region/:league", async (req, res) => {
   !checkRank(uLeague) && (uLeague = "CHALLENGER");
 
   try {
-    const players = await getLeaderboardPlayers(uLeague, region, queue, league);
+    const players = await getLeaderboardPlayers(uLeague, region, queue);
+    // console.log(players);
+    // console.log(uLeague, region, queue);
     res.json({ players: players });
   } catch (err) {
     res.status(500).json({ error: "Server error" });

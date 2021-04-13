@@ -33,15 +33,14 @@ const pickModel = (league) => {
  */
 const getLeaderboardPlayers = async (league, region, queue) => {
   const model = pickModel(league);
+  console.log(`League: ${league}, region: ${region}, queue: ${queue} `);
   try {
     const players = await model
       .find({
         region: region,
-        queue: queue,
-        league: league,
       })
       .sort({ rank: 1 });
-    // console.log(players);
+    console.log(players.length);
     return players;
   } catch (err) {
     console.log(err);

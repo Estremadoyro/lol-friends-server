@@ -14,7 +14,7 @@ router.post("/:region/:summoner?", async (req, res) => {
       .status(400)
       .json({ error: "Summoner or region cannot be empty" });
   if (
-    region.length < 3 ||
+    region.length < 2 ||
     region.length > 4 ||
     !regionsValue.includes(region)
   ) {
@@ -46,9 +46,9 @@ router.post("/:region/:summoner?", async (req, res) => {
       return createNewPlayer;
     }
     console.log("player doesnt exist");
-    return res.status(404).json({ error: "Player doesn't exist :sadowo:" });
+    return res.status(404).json({ error: "Player doesn't exist " });
   } catch (err) {
-    res.status(500).json({ error: "Server error :sadowo:" });
+    res.status(500).json({ error: "Server error" });
     console.log(err);
   }
 });
