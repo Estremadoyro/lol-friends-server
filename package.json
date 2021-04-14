@@ -17,7 +17,8 @@
   },
   "scripts": {
     "dev": "nodemon ./app.js",
-    "cron-job": "node ./jobs/index.js"
+    "cron-job": "node ./jobs/index.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
