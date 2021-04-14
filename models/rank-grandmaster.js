@@ -54,7 +54,7 @@ const RankGrandmasterSchema = new mongoose.Schema({
     required: true,
   },
   updateTime: {
-    type: Number,
+    type: Date,
     required: true,
   },
 });

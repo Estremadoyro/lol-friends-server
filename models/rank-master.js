@@ -54,7 +54,7 @@ const RankMasterSchema = new mongoose.Schema({
     required: true,
   },
   updateTime: {
-    type: String,
+    type: Date,
     required: true,
   },
 });

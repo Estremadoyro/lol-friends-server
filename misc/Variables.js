@@ -39,8 +39,8 @@ const selectRegion = {
   ],
 };
 
-const selectRank = {
-  ranks: [
+const selectLeague = {
+  leagues: [
     {
       name: "CHALLENGER",
       value: "CHALLENGER",
@@ -56,4 +56,4 @@ const selectRank = {
   ],
 };
 
-module.exports = { selectRegion, selectRank };
+module.exports = { selectRegion, selectLeague };

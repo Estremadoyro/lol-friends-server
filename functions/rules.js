@@ -1,7 +1,8 @@
-const ranks = ["CHALLENGER", "GRANDMASTER", "MASTER"];
+const { selectLeague } = require("../misc/Variables");
 
-const checkRank = (rank) => {
-  return ranks.includes(rank);
+const checkLeague = (league) => {
+  const leagues = selectLeague.leagues.map((league) => league.name);
+  return leagues.includes(league);
 };
 
-module.exports = { checkRank };
+module.exports = { checkLeague };

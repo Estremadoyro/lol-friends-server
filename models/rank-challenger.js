@@ -54,7 +54,7 @@ const RankChallengerSchema = new mongoose.Schema({
     required: true,
   },
   updateTime: {
-    type: Number,
+    type: Date,
     required: true,
   },
 });

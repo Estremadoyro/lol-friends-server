@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { checkRank } = require("../../functions/rules");
+const { checkLeague } = require("../../functions/rules");
 
 const { getLeaderboardPlayers } = require("../../functions/dbQueries");
 
@@ -17,7 +17,7 @@ router.get("/:region/:league", async (req, res) => {
   }
 
   let uLeague = league.toUpperCase();
-  !checkRank(uLeague) && (uLeague = "CHALLENGER");
+  !checkLeague(uLeague) && (uLeague = "CHALLENGER");
 
   try {
     const players = await getLeaderboardPlayers(uLeague, region, queue);

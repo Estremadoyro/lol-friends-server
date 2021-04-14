@@ -3,6 +3,10 @@ const RankGrandMaster = require("../models/rank-grandmaster");
 const RankMaster = require("../models/rank-master");
 
 const Summoner = require("../models/summoner");
+
+// const dayjs = require("dayjs");
+// const relativeTime = require("dayjs/plugin/relativeTime");
+// dayjs.extend(relativeTime);
 /**
  * Returns a ranked league model
  * @param {league} - Ranked system league
@@ -192,6 +196,7 @@ const createPlayerDB = async (p) => {
     console.log(err);
   }
 };
+
 module.exports = {
   getLeaderboardPlayers,
   getPlayerDB,

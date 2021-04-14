@@ -1,6 +1,5 @@
 const db = require("../db");
 const axios = require("axios");
-const mongoose = require("mongoose");
 
 const { plb } = require("../functions/parseAPI");
 const {
@@ -10,22 +9,31 @@ const {
   deletePlayers,
 } = require("../functions/dbQueries");
 
+const { selectLeague } = require("../misc/Variables");
+const { selectRegion } = require("../misc/Variables");
+
 const { computeRankStatus } = require("../functions/misc");
 
 db();
 const leaderboard = {
-  region: "jp1",
+  region: "",
   queue: "RANKED_SOLO_5x5",
-  league: "MASTER",
+  league: "",
   division: "I",
 };
 
 const updateLeaderboard = async (leaderboard) => {
-  // const updatedTime = Date.now().toString();
-  const playersAPI = await getPlayersAPI(leaderboard);
-  const updateTime = await comparePlayers(leaderboard, playersAPI);
-  const rm = await removeDemotedPlayers(leaderboard, updateTime);
-  return rm;
+  for (var i = 0; i < selectLeague.leagues.length; i++) {
+    leaderboard.league = selectLeague.leagues[i].name;
+    for (var j = 0; j < selectRegion.regions.length; j++) {
+      leaderboard.region = selectRegion.regions[j].value;
+      const playersAPI = await getPlayersAPI(leaderboard);
+      const updateTime = await comparePlayers(leaderboard, playersAPI);
+      await removeDemotedPlayers(leaderboard, updateTime);
+    }
+  }
+  console.log(`Finished all updates`);
+  return;
 };
 
 const getPlayersAPI = async (lb) => {
@@ -106,11 +114,12 @@ const createPlayerDB = async (playerAPI, lb, newRank, time) => {
 const removeDemotedPlayers = async (lb, time) => {
   try {
     const deletion = await deletePlayers(lb.league, lb.region, time);
-    console.log(`Deleted ${deletion.n} from ${lb.region}`);
+    console.log(`Deleted ${deletion.n} from ${lb.region} | ${lb.league}`);
     // console.log(`Delete time ${time}`);
     return deletion;
   } catch (err) {
     console.log(err);
   }
 };
+
 updateLeaderboard(leaderboard);
