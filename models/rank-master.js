@@ -53,6 +53,26 @@ const RankMasterSchema = new mongoose.Schema({
     default: "same",
     required: true,
   },
+  veteran: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  inactive: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  freshBlood: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  hotSreak: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   updateTime: {
     type: Date,
     required: true,

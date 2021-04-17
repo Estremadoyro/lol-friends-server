@@ -38,7 +38,8 @@ const SummonerSchema = new mongoose.Schema({
   },
   profileIconUrl: {
     type: "String",
-    default: "https://cdn.communitydragon.org/11.7.9/profile-icon/29",
+    default:
+      "https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/29.png",
   },
   summonerLevel: {
     type: "Number",

@@ -5,7 +5,7 @@ const { plb } = require("../functions/parseAPI");
 const {
   findPlayer,
   updateLeaderboardPlayer,
-  createPlayer,
+  createLeaderboardPlayer,
   deletePlayers,
 } = require("../functions/dbQueries");
 
@@ -39,6 +39,7 @@ const updateLeaderboard = async (leaderboard) => {
 const getPlayersAPI = async (lb) => {
   const parameters = plb(lb.region, lb.queue, lb.league, lb.division);
   try {
+    //Get Riot API
     const request = await axios.get(parameters);
     const players = request.data;
     return players;
@@ -97,7 +98,7 @@ const updatePlayerDB = async (playerDB, playerAPI, time, newRank) => {
 
 const createPlayerDB = async (playerAPI, lb, newRank, time) => {
   try {
-    const player = await createPlayer(
+    const player = await createLeaderboardPlayer(
       playerAPI,
       lb.league,
       lb.region,

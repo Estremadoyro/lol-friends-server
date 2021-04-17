@@ -75,7 +75,13 @@ const findPlayer = async (league, summonerId) => {
  * @param {updatedTime} - Update timestamp
  * @returns new Player
  */
-const createPlayer = async (playerAPI, league, region, rank, updatedTime) => {
+const createLeaderboardPlayer = async (
+  playerAPI,
+  league,
+  region,
+  rank,
+  updatedTime
+) => {
   const model = pickModel(league);
   const newPlayer = new model({
     rank: rank,
@@ -84,6 +90,10 @@ const createPlayer = async (playerAPI, league, region, rank, updatedTime) => {
     league: playerAPI.tier,
     summonerName: playerAPI.summonerName,
     leaguePoints: playerAPI.leaguePoints,
+    veteran: playerAPI.veteran,
+    inactive: playerAPI.inactive,
+    freshBlood: playerAPI.freshBlood,
+    hotSreak: playerAPI.hotSreak,
     queue: playerAPI.queueType,
     wins: playerAPI.wins,
     losses: playerAPI.losses,
@@ -122,6 +132,11 @@ const updateLeaderboardPlayer = async (
         wins: playerAPI.wins,
         losses: playerAPI.losses,
         leaguePoints: playerAPI.leaguePoints,
+        summonerName: playerAPI.summonerName,
+        veteran: playerAPI.veteran,
+        inactive: playerAPI.inactive,
+        freshBlood: playerAPI.freshBlood,
+        hotSreak: playerAPI.hotSreak,
         rank: rank,
         rankOffset: rankOffset,
         updateTime: updatedTime,
@@ -160,8 +175,8 @@ const deletePlayers = async (league, region, time) => {
 
 const getPlayerDB = async (region, summoner) => {
   try {
+    const nameLower = summoner.toLowerCase().trim().replace(/\s+/g, "");
     const player = await Summoner.findOne({
-      // name: new RegExp(`\\b${summoner}\\b`, "i"),
       nameLower: summoner.toLowerCase().trim().replace(/\s+/g, ""),
       region: region,
     });
@@ -186,7 +201,7 @@ const createPlayerDB = async (p) => {
       name: p.name,
       nameLower: p.name.toLowerCase().replace(/\s+/g, ""),
       profileIconId: p.profileIconId,
-      profileIconUrl: `https://cdn.communitydragon.org/11.7.9/profile-icon/${p.profileIconId}`,
+      profileIconUrl: `https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/${p.profileIconId}.png`,
       summonerLevel: p.summonerLevel,
     });
     const resp = await newPlayer.save();
@@ -204,6 +219,6 @@ module.exports = {
   pickModel,
   findPlayer,
   updateLeaderboardPlayer,
-  createPlayer,
+  createLeaderboardPlayer,
   deletePlayers,
 };
