@@ -7,6 +7,7 @@ const { getLeaderboardPlayers } = require("../../functions/dbQueries");
 
 router.get("/:region/:league", async (req, res) => {
   const { region, league } = req.params;
+  const { page } = req.query;
   const queue = "RANKED_SOLO_5x5";
   const division = "I";
   console.log(req.params);
@@ -20,8 +21,13 @@ router.get("/:region/:league", async (req, res) => {
   !checkLeague(uLeague) && (uLeague = "CHALLENGER");
 
   try {
-    const players = await getLeaderboardPlayers(uLeague, region, queue);
-    res.json({ players: players });
+    const { players, pages } = await getLeaderboardPlayers(
+      uLeague,
+      region,
+      queue,
+      page
+    );
+    res.json({ players, pages });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
     console.log(err);
