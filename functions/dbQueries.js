@@ -29,23 +29,39 @@ const pickModel = (league) => {
 };
 
 /**
- * Finds all players of a League (Challenger, Grandmaster, Master)
- * @param {league} - Ranked system league
- * @param {region} - Ranked region (9 regions)
- * @param {queue} - Ranked queue (RANKED_SOLO_5x5, RANKED_FLEX_5x5)
- * @returns RankChallenger | RankGrandmaster | RankMaster
+ * Finds all players of a League (Challenger, Grandmaster, Master) 
+ * per region and page.
+ *
+ * @param {string} league Ranked system league
+ * @param {string} region Ranked region (9 regions)
+ * @param {string} queue Ranked queue (RANKED_SOLO_5x5, RANKED_FLEX_5x5)
+ * @param {number} page Pagination number, if page is not in range, it returns first page
+ * @returns {Promise<{ players: Document[], pages: number }>}
  */
-const getLeaderboardPlayers = async (league, region, queue) => {
+const getLeaderboardPlayers = async (league, region, queue, page) => {
+  /* Documents for page */
+  const BUCKET = 25;
+  let skipped = 0;
   const model = pickModel(league);
+  /* Count all Documents in model / regien
+   * TODO cache count region in DB Update
+   */
+  const COUNT = await model.count({ region: region });
+  const PAGES = Math.ceil(COUNT / BUCKET);
+  if (page) {
+    skipped = (page - 1) * BUCKET;
+  }
   console.log(`League: ${league}, region: ${region}, queue: ${queue} `);
   try {
     const players = await model
       .find({
         region: region,
       })
-      .sort({ rank: 1 });
+      .sort({ rank: 1 })
+      .skip(skipped)
+      .limit(BUCKET);
     console.log(players.length);
-    return players;
+    return { players, pages: PAGES };
   } catch (err) {
     console.log(err);
   }
