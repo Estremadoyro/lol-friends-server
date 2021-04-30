@@ -18,7 +18,7 @@
   },
   "scripts": {
     "dev": "nodemon ./app.js",
-    "cron-job": "node ./jobs/index.js",
+    "cron-job": "node ./jobs/updateLeaderboardv2.js",
     "start": "node app.js"
   },
   "repository": {
