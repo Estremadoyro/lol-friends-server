@@ -32,14 +32,4 @@ router.post("/:region/:summoner?", isRegionAndSummoner, async (req, res) => {
     console.log(err);
   }
 });
-
-router.get(
-  "/mastery/:region/:summonerId",
-  isRegionAndSummoner,
-  async (req, res) => {
-    const { region, summonerId } = req.params;
-    try {
-    } catch (error) {}
-  }
-);
 module.exports = router;
