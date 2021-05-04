@@ -45,10 +45,16 @@ const SummonerSchema = new mongoose.Schema({
     type: "Number",
     required: true,
   },
+  championMastery: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "summoner.masteries",
+    },
+  ],
   date: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("SUMMONER", SummonerSchema);
+module.exports = mongoose.model("summoner", SummonerSchema);

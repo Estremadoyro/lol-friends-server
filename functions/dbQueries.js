@@ -1,12 +1,13 @@
+const { default: axios } = require("axios");
+const mongoose = require("mongoose");
 const RankChallenger = require("../models/rank-challenger");
 const RankGrandMaster = require("../models/rank-grandmaster");
 const RankMaster = require("../models/rank-master");
 
 const Summoner = require("../models/summoner");
+const SummonerMastery = require("../models/summoner-mastery");
 
-// const dayjs = require("dayjs");
-// const relativeTime = require("dayjs/plugin/relativeTime");
-// dayjs.extend(relativeTime);
+const { getPlayerMasteryChampions } = require("./apiQueries");
 /**
  * Returns a ranked league model
  * @param {league} - Ranked system league
@@ -175,11 +176,10 @@ const deletePlayers = async (league, region, time) => {
 
 const getPlayerDB = async (region, summoner) => {
   try {
-    const nameLower = summoner.toLowerCase().trim().replace(/\s+/g, "");
     const player = await Summoner.findOne({
       nameLower: summoner.toLowerCase().trim().replace(/\s+/g, ""),
       region: region,
-    });
+    }).populate("championMastery");
     if (player) {
       console.log(`Player ${summoner} (${region}) found in DB`);
       return player;
@@ -191,23 +191,55 @@ const getPlayerDB = async (region, summoner) => {
   }
 };
 
-const createPlayerDB = async (p) => {
+const createPlayerMasteryDB = async (region, p) => {
+  try {
+    const playerMastery = await getPlayerMasteryChampions(region, p.id);
+    const playerMastery10 = playerMastery.slice(0, 10);
+    const championMasteries = [];
+    playerMastery10.map(async (mastery) => {
+      const championMastery = new SummonerMastery({
+        chestGranted: mastery.chestGranted,
+        tokensEarned: mastery.tokensEarned,
+        championId: mastery.championId,
+        championIconUrl: `https://cdn.communitydragon.org/11.9.9/champion/${mastery.championId}/square`,
+        championPoints: mastery.championPoints,
+        lastPlayTime: mastery.lastPlayTime,
+        championPointsSinceLastLevel: mastery.championPointsSinceLastLevel,
+        championPointsUntilNextLevel: mastery.championPointsUntilNextLevel,
+        summonerId: mastery.summonerId,
+      });
+      championMasteries.push(championMastery);
+      await championMastery.save();
+    });
+    return championMasteries;
+  } catch (err) {
+    console.log(err);
+  }
+};
+const createPlayerDB = async (p, region) => {
   try {
     const newPlayer = new Summoner({
       id: p.id,
       accountId: p.accountId,
       puuid: p.puuid,
-      region: p.region,
+      region: region,
       name: p.name,
       nameLower: p.name.toLowerCase().replace(/\s+/g, ""),
       profileIconId: p.profileIconId,
       profileIconUrl: `https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/${p.profileIconId}.png`,
       summonerLevel: p.summonerLevel,
     });
+    const championMastery = await createPlayerMasteryDB(region, p);
+    newPlayer.championMastery = championMastery;
     const resp = await newPlayer.save();
+    console.log(resp);
     if (resp) console.log(`Player ${resp.name} (${resp.region}) created in DB`);
     return resp;
   } catch (err) {
+    if (err.code === 11000) {
+      console.log(`Summoner ${p.name} already exists @ ${region}`);
+      return;
+    }
     console.log(err);
   }
 };
