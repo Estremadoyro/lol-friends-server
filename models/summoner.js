@@ -45,10 +45,26 @@ const SummonerSchema = new mongoose.Schema({
     type: "Number",
     required: true,
   },
+  isRankedSolo: {
+    type: "Boolean",
+    default: false,
+    required: true,
+  },
+  isRankedFlex: {
+    type: "Boolean",
+    default: false,
+    required: true,
+  },
   championMastery: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "summoner.masteries",
+    },
+  ],
+  summonerRank: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "summoner.ranks",
     },
   ],
   date: {

@@ -1,13 +1,16 @@
-const { default: axios } = require("axios");
-const mongoose = require("mongoose");
 const RankChallenger = require("../models/rank-challenger");
 const RankGrandMaster = require("../models/rank-grandmaster");
 const RankMaster = require("../models/rank-master");
 
 const Summoner = require("../models/summoner");
 const SummonerMastery = require("../models/summoner-mastery");
+const summonerRank = require("../models/summoner-rank");
+const SummonerRank = require("../models/summoner-rank");
 
-const { getPlayerMasteryChampions } = require("./apiQueries");
+const {
+  getPlayerMasteryChampionsAPI,
+  getPlayerRanksAPI,
+} = require("./apiQueries");
 /**
  * Returns a ranked league model
  * @param {league} - Ranked system league
@@ -179,7 +182,9 @@ const getPlayerDB = async (region, summoner) => {
     const player = await Summoner.findOne({
       nameLower: summoner.toLowerCase().trim().replace(/\s+/g, ""),
       region: region,
-    }).populate("championMastery");
+    })
+      .populate("championMastery")
+      .populate("summonerRank");
     if (player) {
       console.log(`Player ${summoner} (${region}) found in DB`);
       return player;
@@ -191,9 +196,117 @@ const getPlayerDB = async (region, summoner) => {
   }
 };
 
-const createPlayerMasteryDB = async (region, p) => {
+const createPlayerRanksDB = async (region, p) => {
   try {
-    const playerMastery = await getPlayerMasteryChampions(region, p.id);
+    const playerRanks = await getPlayerRanksAPI(region, p.id);
+    const playerRanksSoloFlex = [];
+    let playerIsRankedSoloAndFlex = [];
+    const queues = ["RANKED_SOLO_5x5", "RANKED_FLEX_SR"];
+    console.log(`Ranks length: ${playerRanks.length}`);
+    if (playerRanks.length < 1 || playerRanks.length == 2) {
+      if (playerRanks.length < 1) {
+        queues.forEach((queue) => {
+          const newPlayerUnranked = new SummonerRank({
+            summonerId: p.id,
+            summonerName: p.name,
+            queueType: queue,
+            region: region,
+          });
+          playerRanksSoloFlex.push(newPlayerUnranked);
+        });
+        playerIsRankedSoloAndFlex = [false, false];
+      } else if (playerRanks.length == 2) {
+        playerRanks.forEach((queue) => {
+          const newPlayerSoloAndFlex = new SummonerRank({
+            leagueId: queue.leagueId,
+            queueType: queue.queueType,
+            league: queue.tier,
+            division: queue.rank,
+            summonerId: p.id,
+            summonerName: p.name,
+            leaguePoints: queue.leaguePoints,
+            wins: queue.wins,
+            losses: queue.losses,
+            veteran: queue.veteran,
+            inactive: queue.inactive,
+            freshBlood: queue.freshBlood,
+            hotStreak: queue.hotStreak,
+            region: region,
+          });
+          playerRanksSoloFlex.push(newPlayerSoloAndFlex);
+        });
+        playerIsRankedSoloAndFlex = [true, true];
+      }
+    } else if (playerRanks.length == 1) {
+      if (playerRanks[0].queueType === "RANKED_SOLO_5x5") {
+        console.log("LLEGO ACA OWO");
+        const newPlayerSolo = new SummonerRank({
+          leagueId: playerRanks[0].leagueId,
+          queueType: playerRanks[0].queueType,
+          league: playerRanks[0].tier,
+          division: playerRanks[0].rank,
+          summonerId: playerRanks[0].summonerId,
+          summonerName: playerRanks[0].summonerName,
+          leaguePoints: playerRanks[0].leaguePoints,
+          wins: playerRanks[0].wins,
+          losses: playerRanks[0].losses,
+          veteran: playerRanks[0].veteran,
+          inactive: playerRanks[0].inactive,
+          freshBlood: playerRanks[0].freshBlood,
+          hotStreak: playerRanks[0].hotStreak,
+          region: region,
+        });
+        newPlayerSolo.queueType = queues[0];
+        const newPlayerFlex = new SummonerRank({
+          summonerId: p.id,
+          summonerName: p.name,
+          region: region,
+        });
+        newPlayerFlex.queueType = queues[1];
+        playerRanksSoloFlex.push(newPlayerSolo, newPlayerFlex);
+        console.log("2 RANKS");
+        console.log(playerRanksSoloFlex);
+        playerIsRankedSoloAndFlex = [true, false];
+      } else if (playerRanks[0].queueType === "RANKED_FLEX_SR") {
+        const newPlayerFlex = new summonerRank({
+          leagueId: playerRanks[0].leagueId,
+          queueType: playerRanks[0].queueType,
+          league: playerRanks[0].tier,
+          division: playerRanks[0].rank,
+          summonerId: playerRanks[0].summonerId,
+          summonerName: playerRanks[0].summonerName,
+          leaguePoints: playerRanks[0].leaguePoints,
+          wins: playerRanks[0].wins,
+          losses: playerRanks[0].losses,
+          veteran: playerRanks[0].veteran,
+          inactive: playerRanks[0].inactive,
+          freshBlood: playerRanks[0].freshBlood,
+          hotStreak: playerRanks[0].hotStreak,
+          region: region,
+        });
+        newPlayerFlex.queueType = queues[1];
+        const newPlayerSolo = new SummonerRank({
+          summonerId: p.id,
+          summonerName: p.name,
+        });
+        newPlayerSolo.queueType = queues[0];
+        playerRanksSoloFlex.push(newPlayerFlex, newPlayerSolo);
+        playerIsRankedSoloAndFlex = [false, true];
+      }
+    }
+    playerRanksSoloFlex.forEach(async (playerRank) => {
+      await playerRank.save();
+    });
+    console.log(playerRanksSoloFlex);
+    return { playerRanksSoloFlex, playerIsRankedSoloAndFlex };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const createPlayerMasteriesDB = async (region, p) => {
+  try {
+    const playerMastery = await getPlayerMasteryChampionsAPI(region, p.id);
     const playerMastery10 = playerMastery.slice(0, 10);
     const championMasteries = [];
     playerMastery10.map(async (mastery) => {
@@ -216,8 +329,14 @@ const createPlayerMasteryDB = async (region, p) => {
     console.log(err);
   }
 };
+
 const createPlayerDB = async (p, region) => {
   try {
+    const playerExists = await getPlayerDB(region, p.name);
+    if (playerExists) {
+      console.log(`Player ${p.name} already exists @ ${region}`);
+      return;
+    }
     const newPlayer = new Summoner({
       id: p.id,
       accountId: p.accountId,
@@ -229,8 +348,14 @@ const createPlayerDB = async (p, region) => {
       profileIconUrl: `https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/${p.profileIconId}.png`,
       summonerLevel: p.summonerLevel,
     });
-    const championMastery = await createPlayerMasteryDB(region, p);
+    const championMastery = await createPlayerMasteriesDB(region, p);
+    const summonerRank = await createPlayerRanksDB(region, p);
     newPlayer.championMastery = championMastery;
+    newPlayer.summonerRank = summonerRank.playerRanksSoloFlex;
+    newPlayer.isRankedSolo = summonerRank.playerIsRankedSoloAndFlex[0];
+    newPlayer.isRankedFlex = summonerRank.playerIsRankedSoloAndFlex[1];
+    console.log(`RANKED INFO`);
+    console.log(summonerRank.playerRanksSoloFlex);
     const resp = await newPlayer.save();
     console.log(resp);
     if (resp) console.log(`Player ${resp.name} (${resp.region}) created in DB`);

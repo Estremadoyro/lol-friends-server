@@ -13,9 +13,15 @@ const pSummoner = (region, summoner) => {
 };
 
 const pSummonerMasteryChampions = (region, summonerId) => {
-  const parse = `${API.RIOT_API_SUMMONER_MASTERY_CHAMPIONS}/summoner/mastery/${region}/${summonerId}`;
+  const parse = `${API.RIOT_API_SUMMONER_MASTERY_CHAMPIONS}/summoner/${region}/${summonerId}`;
   const parseEncoded = encodeURI(parse);
   return parseEncoded;
 };
 
-module.exports = { plb, pSummoner, pSummonerMasteryChampions };
+const pSummonerRank = (region, summonerId) => {
+  const parse = `${API.RIOT_API_SUMMONER_RANK_INFO}/summoner/${region}/${summonerId}`;
+  const parseEncoded = encodeURI(parse);
+  return parseEncoded;
+};
+
+module.exports = { plb, pSummoner, pSummonerMasteryChampions, pSummonerRank };

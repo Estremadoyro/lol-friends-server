@@ -1,5 +1,9 @@
 const axios = require("axios");
-const { pSummoner, pSummonerMasteryChampions } = require("./parseAPI");
+const {
+  pSummoner,
+  pSummonerMasteryChampions,
+  pSummonerRank,
+} = require("./parseAPI");
 
 const getPlayerAPI = async (region, summoner) => {
   const parameters = pSummoner(region, summoner);
@@ -22,7 +26,7 @@ const getPlayerAPI = async (region, summoner) => {
   }
 };
 
-const getPlayerMasteryChampions = async (region, summonerId) => {
+const getPlayerMasteryChampionsAPI = async (region, summonerId) => {
   const parameters = pSummonerMasteryChampions(region, summonerId);
   try {
     const { data } = await axios.get(parameters);
@@ -38,4 +42,24 @@ const getPlayerMasteryChampions = async (region, summonerId) => {
   }
 };
 
-module.exports = { getPlayerAPI, getPlayerMasteryChampions };
+const getPlayerRanksAPI = async (region, summonerId) => {
+  const parameters = pSummonerRank(region, summonerId);
+  try {
+    const { data } = await axios.get(parameters);
+    return data;
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status == 400) {
+        console.log(`SummonerId (${summonerId}) not found @ ${region}`);
+        return;
+      }
+    }
+    console.log(error);
+  }
+};
+
+module.exports = {
+  getPlayerAPI,
+  getPlayerMasteryChampionsAPI,
+  getPlayerRanksAPI,
+};

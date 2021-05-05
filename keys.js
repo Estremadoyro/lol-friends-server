@@ -11,4 +11,5 @@ const API = {
 const MONGO_CREDENTIALS = {
   DB_URI: process.env.DB_URI,
 };
+
 module.exports = { API, MONGO_CREDENTIALS };
