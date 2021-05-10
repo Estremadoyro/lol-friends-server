@@ -8,6 +8,13 @@ const summonerRank = require("../models/summoner-rank");
 const SummonerRank = require("../models/summoner-rank");
 
 const {
+  getHighestLeagueDivision,
+  getParsedLeagueDivision,
+  computeWinrate,
+  getParsedQueue,
+} = require("../functions/misc");
+
+const {
   getPlayerMasteryChampionsAPI,
   getPlayerRanksAPI,
 } = require("./apiQueries");
@@ -201,6 +208,7 @@ const createPlayerRanksDB = async (region, p) => {
     const playerRanks = await getPlayerRanksAPI(region, p.id);
     const playerRanksSoloFlex = [];
     let playerIsRankedSoloAndFlex = [];
+    let highestLeague = "";
     const queues = ["RANKED_SOLO_5x5", "RANKED_FLEX_SR"];
     console.log(`Ranks length: ${playerRanks.length}`);
     if (playerRanks.length < 1 || playerRanks.length == 2) {
@@ -210,95 +218,142 @@ const createPlayerRanksDB = async (region, p) => {
             summonerId: p.id,
             summonerName: p.name,
             queueType: queue,
+            queue: getParsedQueue(queue),
             region: region,
+            leagueDivision: "Unranked",
           });
           playerRanksSoloFlex.push(newPlayerUnranked);
         });
         playerIsRankedSoloAndFlex = [false, false];
+        highestLeague = "Unranked";
       } else if (playerRanks.length == 2) {
         playerRanks.forEach((queue) => {
+          const newLeagueDivision = {
+            league: queue.tier,
+            division: queue.rank,
+          };
+          const fullLeague = getParsedLeagueDivision(newLeagueDivision);
           const newPlayerSoloAndFlex = new SummonerRank({
             leagueId: queue.leagueId,
             queueType: queue.queueType,
-            league: queue.tier,
+            queue: getParsedQueue(queue.queueType),
+            league: queue.tier.toLowerCase(),
             division: queue.rank,
+            leagueDivision: fullLeague,
+            isRanked: true,
             summonerId: p.id,
             summonerName: p.name,
             leaguePoints: queue.leaguePoints,
             wins: queue.wins,
             losses: queue.losses,
+            winRate: computeWinrate(queue.wins, queue.losses),
             veteran: queue.veteran,
             inactive: queue.inactive,
             freshBlood: queue.freshBlood,
             hotStreak: queue.hotStreak,
             region: region,
           });
-          playerRanksSoloFlex.push(newPlayerSoloAndFlex);
+          if (newPlayerSoloAndFlex.queue == "Solo") {
+            playerRanksSoloFlex.unshift(newPlayerSoloAndFlex);
+          } else {
+            playerRanksSoloFlex.push(newPlayerSoloAndFlex);
+          }
         });
         playerIsRankedSoloAndFlex = [true, true];
+        const newLeagueDivision1 = {
+          league: playerRanks[0].tier,
+          division: playerRanks[0].rank,
+        };
+        const newLeagueDivision2 = {
+          league: playerRanks[1].tier,
+          division: playerRanks[1].rank,
+        };
+        const computeHighestLeague = getHighestLeagueDivision(
+          newLeagueDivision1,
+          newLeagueDivision2
+        );
+        highestLeague = computeHighestLeague.league;
       }
     } else if (playerRanks.length == 1) {
       if (playerRanks[0].queueType === "RANKED_SOLO_5x5") {
-        console.log("LLEGO ACA OWO");
+        const newLeagueDivision = {
+          league: playerRanks[0].tier,
+          division: playerRanks[0].rank,
+        };
+        const fullLeague = getParsedLeagueDivision(newLeagueDivision);
         const newPlayerSolo = new SummonerRank({
           leagueId: playerRanks[0].leagueId,
           queueType: playerRanks[0].queueType,
-          league: playerRanks[0].tier,
+          queue: getParsedQueue(playerRanks[0].queueType),
+          league: playerRanks[0].tier.toLowerCase(),
           division: playerRanks[0].rank,
+          leagueDivision: fullLeague,
+          isRanked: true,
           summonerId: playerRanks[0].summonerId,
           summonerName: playerRanks[0].summonerName,
           leaguePoints: playerRanks[0].leaguePoints,
           wins: playerRanks[0].wins,
           losses: playerRanks[0].losses,
+          winRate: computeWinrate(playerRanks[0].wins, playerRanks[0].losses),
           veteran: playerRanks[0].veteran,
           inactive: playerRanks[0].inactive,
           freshBlood: playerRanks[0].freshBlood,
           hotStreak: playerRanks[0].hotStreak,
           region: region,
         });
-        newPlayerSolo.queueType = queues[0];
         const newPlayerFlex = new SummonerRank({
           summonerId: p.id,
           summonerName: p.name,
           region: region,
+          queueType: queues[1],
+          queue: getParsedQueue(queues[1]),
         });
-        newPlayerFlex.queueType = queues[1];
         playerRanksSoloFlex.push(newPlayerSolo, newPlayerFlex);
-        console.log("2 RANKS");
-        console.log(playerRanksSoloFlex);
         playerIsRankedSoloAndFlex = [true, false];
+        highestLeague = playerRanks[0].tier;
       } else if (playerRanks[0].queueType === "RANKED_FLEX_SR") {
+        const newLeagueDivision = {
+          league: playerRanks[0].tier,
+          division: playerRanks[0].rank,
+        };
+        const fullLeague = getParsedLeagueDivision(newLeagueDivision);
         const newPlayerFlex = new summonerRank({
           leagueId: playerRanks[0].leagueId,
           queueType: playerRanks[0].queueType,
-          league: playerRanks[0].tier,
+          queue: getParsedQueue(playerRanks[0].queueType),
+          league: playerRanks[0].tier.toLowerCase(),
           division: playerRanks[0].rank,
+          leagueDivision: fullLeague,
+          isRanked: true,
           summonerId: playerRanks[0].summonerId,
           summonerName: playerRanks[0].summonerName,
           leaguePoints: playerRanks[0].leaguePoints,
           wins: playerRanks[0].wins,
           losses: playerRanks[0].losses,
+          winRate: computeWinrate(playerRanks[0].wins, playerRanks[0].losses),
           veteran: playerRanks[0].veteran,
           inactive: playerRanks[0].inactive,
           freshBlood: playerRanks[0].freshBlood,
           hotStreak: playerRanks[0].hotStreak,
           region: region,
         });
-        newPlayerFlex.queueType = queues[1];
         const newPlayerSolo = new SummonerRank({
           summonerId: p.id,
           summonerName: p.name,
+          queueType: queues[0],
+          queue: getParsedQueue(queues[0]),
+          region: region,
         });
-        newPlayerSolo.queueType = queues[0];
-        playerRanksSoloFlex.push(newPlayerFlex, newPlayerSolo);
+        playerRanksSoloFlex.push(newPlayerSolo, newPlayerFlex);
         playerIsRankedSoloAndFlex = [false, true];
+        highestLeague = playerRanks[0].tier;
       }
     }
     playerRanksSoloFlex.forEach(async (playerRank) => {
       await playerRank.save();
     });
     console.log(playerRanksSoloFlex);
-    return { playerRanksSoloFlex, playerIsRankedSoloAndFlex };
+    return { playerRanksSoloFlex, playerIsRankedSoloAndFlex, highestLeague };
   } catch (error) {
     console.log(error);
   }
@@ -314,6 +369,7 @@ const createPlayerMasteriesDB = async (region, p) => {
         chestGranted: mastery.chestGranted,
         tokensEarned: mastery.tokensEarned,
         championId: mastery.championId,
+        championLevel: mastery.championLevel,
         championIconUrl: `https://cdn.communitydragon.org/11.9.9/champion/${mastery.championId}/square`,
         championPoints: mastery.championPoints,
         lastPlayTime: mastery.lastPlayTime,
@@ -345,7 +401,7 @@ const createPlayerDB = async (p, region) => {
       name: p.name,
       nameLower: p.name.toLowerCase().replace(/\s+/g, ""),
       profileIconId: p.profileIconId,
-      profileIconUrl: `https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/${p.profileIconId}.png`,
+      profileIconUrl: `https://ddragon.leagueoflegends.com/cdn/11.9.1/img/profileicon/${p.profileIconId}.png`,
       summonerLevel: p.summonerLevel,
     });
     const championMastery = await createPlayerMasteriesDB(region, p);
@@ -354,6 +410,10 @@ const createPlayerDB = async (p, region) => {
     newPlayer.summonerRank = summonerRank.playerRanksSoloFlex;
     newPlayer.isRankedSolo = summonerRank.playerIsRankedSoloAndFlex[0];
     newPlayer.isRankedFlex = summonerRank.playerIsRankedSoloAndFlex[1];
+    if (newPlayer.isRankedSolo && newPlayer.isRankedFlex) {
+      newPlayer.isRanked = true;
+    }
+    newPlayer.highestLeague = summonerRank.highestLeague.toLowerCase();
     console.log(`RANKED INFO`);
     console.log(summonerRank.playerRanksSoloFlex);
     const resp = await newPlayer.save();

@@ -53,5 +53,6 @@ const findPlayer = async (rank, summonerId) => {
 };
 
 // findPlayer("MASTER","ltLtO73CiNP9hKmtv4Gbpl8S-GNLK56BqBe-3f8zJkFFxQ")
-createPlayer("CHALLENGER");
+// createPlayer("CHALLENGER");
+console.log("asd");
 // deletePlayers('1614577571054', RankMaster);

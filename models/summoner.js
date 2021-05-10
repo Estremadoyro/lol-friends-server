@@ -39,10 +39,15 @@ const SummonerSchema = new mongoose.Schema({
   profileIconUrl: {
     type: "String",
     default:
-      "https://ddragon.leagueoflegends.com/cdn/11.8.1/img/profileicon/29.png",
+      "https://ddragon.leagueoflegends.com/cdn/11.9.1/img/profileicon/29.png",
   },
   summonerLevel: {
     type: "Number",
+    required: true,
+  },
+  isRanked: {
+    type: "Boolean",
+    default: false,
     required: true,
   },
   isRankedSolo: {
@@ -61,6 +66,10 @@ const SummonerSchema = new mongoose.Schema({
       ref: "summoner.masteries",
     },
   ],
+  highestLeague: {
+    type: "String",
+    default: "Unranked",
+  },
   summonerRank: [
     {
       type: mongoose.Schema.Types.ObjectId,

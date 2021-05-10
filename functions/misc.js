@@ -1,4 +1,4 @@
-const { selectRegion } = require("../misc/Variables");
+const { selectRegion, rankedLeague } = require("../misc/Variables");
 /**
  * Update player's leaderboard ranking
  *
@@ -14,6 +14,40 @@ const computeRankStatus = (playerDB, rankAPI) => {
   else return "same";
 };
 
+const computeWinrate = (wins, losses) => {
+  const wr = Math.round((wins / (wins + losses)) * 100, 0);
+  return wr.toString();
+};
+
+const getParsedQueue = (queue) => {
+  if (queue == "RANKED_SOLO_5x5") return "Solo";
+  if (queue == "RANKED_FLEX_SR") return "Flex";
+};
+
+const getParsedLeagueDivision = (queueRank) => {
+  const league = rankedLeague[queueRank.league];
+  if (league.division) return `${league.name} ${queueRank.division}`;
+  return league.name;
+};
+
+const getHighestLeagueDivision = (queueRank1, queueRank2) => {
+  queueRank1.league = queueRank1.league.toUpperCase();
+  queueRank2.league = queueRank2.league.toUpperCase();
+  const league1 = rankedLeague[queueRank1.league];
+  const league2 = rankedLeague[queueRank2.league];
+  if (league1.weight > league2.weight) return queueRank1;
+  if (league1.weight < league2.weight) return queueRank2;
+  if (league1.division <= league2.division) return queueRank1;
+  if (league1.division >= league2.division) return queueRank2;
+};
+
 const regionsValue = selectRegion.regions.map(({ value }) => value);
 
-module.exports = { computeRankStatus, regionsValue };
+module.exports = {
+  computeRankStatus,
+  regionsValue,
+  computeWinrate,
+  getParsedQueue,
+  getParsedLeagueDivision,
+  getHighestLeagueDivision,
+};
