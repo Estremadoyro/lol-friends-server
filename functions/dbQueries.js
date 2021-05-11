@@ -222,6 +222,7 @@ const createPlayerRanksDB = async (region, p) => {
             region: region,
             leagueDivision: "Unranked",
           });
+          newPlayerUnranked.promos.isInPromo = false;
           playerRanksSoloFlex.push(newPlayerUnranked);
         });
         playerIsRankedSoloAndFlex = [false, false];
@@ -247,12 +248,18 @@ const createPlayerRanksDB = async (region, p) => {
             wins: queue.wins,
             losses: queue.losses,
             winRate: computeWinrate(queue.wins, queue.losses),
+            promos: queue.miniSeries,
             veteran: queue.veteran,
             inactive: queue.inactive,
             freshBlood: queue.freshBlood,
             hotStreak: queue.hotStreak,
             region: region,
           });
+          if (queue.miniSeries) {
+            newPlayerSoloAndFlex.promos.isInPromo = true;
+          } else {
+            newPlayerSoloAndFlex.promos.isInPromo = false;
+          }
           if (newPlayerSoloAndFlex.queue == "Solo") {
             playerRanksSoloFlex.unshift(newPlayerSoloAndFlex);
           } else {
@@ -295,12 +302,18 @@ const createPlayerRanksDB = async (region, p) => {
           wins: playerRanks[0].wins,
           losses: playerRanks[0].losses,
           winRate: computeWinrate(playerRanks[0].wins, playerRanks[0].losses),
+          promos: playerRanks[0].miniSeries,
           veteran: playerRanks[0].veteran,
           inactive: playerRanks[0].inactive,
           freshBlood: playerRanks[0].freshBlood,
           hotStreak: playerRanks[0].hotStreak,
           region: region,
         });
+        if (playerRanks[0].miniSeries) {
+          newPlayerSolo.promos.isInPromo = true;
+        } else {
+          newPlayerSolo.promos.isInPromo = false;
+        }
         const newPlayerFlex = new SummonerRank({
           summonerId: p.id,
           summonerName: p.name,
@@ -308,6 +321,7 @@ const createPlayerRanksDB = async (region, p) => {
           queueType: queues[1],
           queue: getParsedQueue(queues[1]),
         });
+        newPlayerFlex.promos.isInPromo = false;
         playerRanksSoloFlex.push(newPlayerSolo, newPlayerFlex);
         playerIsRankedSoloAndFlex = [true, false];
         highestLeague = playerRanks[0].tier;
@@ -331,12 +345,18 @@ const createPlayerRanksDB = async (region, p) => {
           wins: playerRanks[0].wins,
           losses: playerRanks[0].losses,
           winRate: computeWinrate(playerRanks[0].wins, playerRanks[0].losses),
+          promos: playerRanks[0].miniSeries,
           veteran: playerRanks[0].veteran,
           inactive: playerRanks[0].inactive,
           freshBlood: playerRanks[0].freshBlood,
           hotStreak: playerRanks[0].hotStreak,
           region: region,
         });
+        if (playerRanks[0].miniSeries) {
+          newPlayerFlex.promos.isInPromo = true;
+        } else {
+          newPlayerFlex.promos.isInPromo = false;
+        }
         const newPlayerSolo = new SummonerRank({
           summonerId: p.id,
           summonerName: p.name,
@@ -344,6 +364,7 @@ const createPlayerRanksDB = async (region, p) => {
           queue: getParsedQueue(queues[0]),
           region: region,
         });
+        newPlayerSolo.promos.isInPromo = false;
         playerRanksSoloFlex.push(newPlayerSolo, newPlayerFlex);
         playerIsRankedSoloAndFlex = [false, true];
         highestLeague = playerRanks[0].tier;

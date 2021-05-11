@@ -72,6 +72,24 @@ const SummonerRankSchema = new mongoose.Schema({
   region: {
     type: "String",
   },
+  promos: {
+    isInPromo: {
+      type: "Boolean",
+      required: true,
+    },
+    target: {
+      type: "Number",
+    },
+    wins: {
+      type: "Number",
+    },
+    losses: {
+      type: "Number",
+    },
+    progress: {
+      type: "String",
+    },
+  },
   date: {
     type: Date,
     default: Date.now,
