@@ -12,6 +12,7 @@ const {
   getParsedLeagueDivision,
   computeWinrate,
   getParsedQueue,
+  parseMasteryPoints,
 } = require("../functions/misc");
 
 const {
@@ -393,6 +394,7 @@ const createPlayerMasteriesDB = async (region, p) => {
         championLevel: mastery.championLevel,
         championIconUrl: `https://cdn.communitydragon.org/11.9.9/champion/${mastery.championId}/square`,
         championPoints: mastery.championPoints,
+        championPointsFormated: parseMasteryPoints(mastery.championPoints),
         lastPlayTime: mastery.lastPlayTime,
         championPointsSinceLastLevel: mastery.championPointsSinceLastLevel,
         championPointsUntilNextLevel: mastery.championPointsUntilNextLevel,

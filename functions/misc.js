@@ -1,3 +1,4 @@
+const numeral = require("numeral");
 const { selectRegion, rankedLeague } = require("../misc/Variables");
 /**
  * Update player's leaderboard ranking
@@ -43,9 +44,14 @@ const getHighestLeagueDivision = (queueRank1, queueRank2) => {
 
 const regionsValue = selectRegion.regions.map(({ value }) => value);
 
+const parseMasteryPoints = (points) => {
+  return numeral(points).format("0a");
+};
+
 module.exports = {
   computeRankStatus,
   regionsValue,
+  parseMasteryPoints,
   computeWinrate,
   getParsedQueue,
   getParsedLeagueDivision,

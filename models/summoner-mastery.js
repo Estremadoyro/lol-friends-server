@@ -17,6 +17,9 @@ const SummonerMasterySchema = new mongoose.Schema({
   championPoints: {
     type: "Number",
   },
+  championPointsFormated: {
+    type: "String",
+  },
   lastPlayTime: {
     type: "Number",
   },
