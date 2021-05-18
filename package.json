@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.9",
     "cors": "^2.8.5",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
@@ -20,7 +21,8 @@
   "scripts": {
     "dev": "nodemon ./app.js",
     "cron-job": "node ./jobs/updateLeaderboardv2.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "crawling": "node ./crawling/index.js"
   },
   "repository": {
     "type": "git",
