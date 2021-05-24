@@ -28,6 +28,7 @@ const getParsedQueue = (queue) => {
 const getParsedLeagueDivision = (queueRank) => {
   const league = rankedLeague[queueRank.league];
   if (league.division) return `${league.name} ${queueRank.division}`;
+
   return league.name;
 };
 
