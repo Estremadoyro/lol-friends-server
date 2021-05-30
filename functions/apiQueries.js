@@ -1,12 +1,10 @@
 const axios = require("axios");
-const {
-  pSummoner,
-  pSummonerMasteryChampions,
-  pSummonerRank,
-} = require("./parseAPI");
+const { pSummoner, pSummonerMasteryChampions, pSummonerRank } = require("./parseAPI");
 
 const getPlayerAPI = async (region, summoner) => {
   const parameters = pSummoner(region, summoner);
+  console.log("GET PLAYER API");
+  console.log(parameters);
   try {
     const { data } = await axios.get(parameters);
     if (data) {
@@ -28,6 +26,8 @@ const getPlayerAPI = async (region, summoner) => {
 
 const getPlayerMasteryChampionsAPI = async (region, summonerId) => {
   const parameters = pSummonerMasteryChampions(region, summonerId);
+  console.log("GET PLAYER MASTERY API");
+  console.log(parameters);
   try {
     const { data } = await axios.get(parameters);
     return data;
@@ -44,6 +44,8 @@ const getPlayerMasteryChampionsAPI = async (region, summonerId) => {
 
 const getPlayerRanksAPI = async (region, summonerId) => {
   const parameters = pSummonerRank(region, summonerId);
+  console.log("GET PLAYER RANKS API");
+  console.log(parameters);
   try {
     const { data } = await axios.get(parameters);
     return data;
