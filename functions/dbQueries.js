@@ -6,6 +6,7 @@ const Summoner = require("../models/summoner");
 const SummonerMastery = require("../models/summoner-mastery");
 const summonerRank = require("../models/summoner-rank");
 const SummonerRank = require("../models/summoner-rank");
+const News = require("../models/news");
 
 const {
   getHighestLeagueDivision,
@@ -15,10 +16,7 @@ const {
   parseMasteryPoints,
 } = require("../functions/misc");
 
-const {
-  getPlayerMasteryChampionsAPI,
-  getPlayerRanksAPI,
-} = require("./apiQueries");
+const { getPlayerMasteryChampionsAPI, getPlayerRanksAPI } = require("./apiQueries");
 /**
  * Returns a ranked league model
  * @param {league} - Ranked system league
@@ -87,13 +85,7 @@ const findPlayer = async (league, summonerId) => {
  * @param {updatedTime} - Update timestamp
  * @returns new Player
  */
-const createLeaderboardPlayer = async (
-  playerAPI,
-  league,
-  region,
-  rank,
-  updatedTime
-) => {
+const createLeaderboardPlayer = async (playerAPI, league, region, rank, updatedTime) => {
   const model = pickModel(league);
   const newPlayer = new model({
     rank: rank,
@@ -129,14 +121,7 @@ const createLeaderboardPlayer = async (
  * @param {updatedTime} - Update timestamp
  * @returns new Player
  */
-const updateLeaderboardPlayer = async (
-  playerDB,
-  playerAPI,
-  rankUpdate,
-  rank,
-  rankOffset,
-  updatedTime
-) => {
+const updateLeaderboardPlayer = async (playerDB, playerAPI, rankUpdate, rank, rankOffset, updatedTime) => {
   try {
     const response = await playerDB.updateOne(
       {
@@ -276,10 +261,7 @@ const createPlayerRanksDB = async (region, p) => {
           league: playerRanks[1].tier,
           division: playerRanks[1].rank,
         };
-        const computeHighestLeague = getHighestLeagueDivision(
-          newLeagueDivision1,
-          newLeagueDivision2
-        );
+        const computeHighestLeague = getHighestLeagueDivision(newLeagueDivision1, newLeagueDivision2);
         highestLeague = computeHighestLeague.league;
       }
     } else if (playerRanks.length == 1) {
@@ -452,9 +434,20 @@ const createPlayerDB = async (p, region) => {
   }
 };
 
+const findNews = async () => {
+  try {
+    const news = await News.find();
+    console.log(news);
+    return news;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getLeaderboardPlayers,
   getPlayerDB,
+  findNews,
   createPlayerDB,
   pickModel,
   findPlayer,

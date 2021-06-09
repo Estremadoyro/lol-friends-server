@@ -13,6 +13,8 @@ db();
 //Routes
 app.use("/api/v1.1/leaderboard", require("./routes/api/leaderboard"));
 app.use("/api/v1.1/summoner", require("./routes/api/summoner"));
+app.use("/api/v1.1/news", require("./routes/api/news"));
+
 app.use("/", require("./routes/dummy"));
 app.listen(PORT, (_req, _res) => {
   console.log(`Listening @ ${PORT}`);
